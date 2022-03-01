@@ -15,6 +15,7 @@ class S(BaseHTTPRequestHandler):
         logging.info(f"GET request,\nPath: {self.path}\nHeaders:\n{self.headers}\n")
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
         url = unquote(self.path[1:])
