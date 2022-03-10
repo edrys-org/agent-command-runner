@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import unquote
 import logging
 from sys import argv
-import subprocess
+from subprocess import PIPE, Popen
 
 class S(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -17,12 +17,13 @@ class S(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
-
+    
         url = unquote(self.path[1:])
         command = url.split("?")[0]
         query = {q.split("=")[0]: q.split("=")[1] for q in url.split("?")[1].split("&")} if len(url.split("?")) > 1 else {}
         logging.info(f"-> Running: {command}")
-        output = subprocess.run(command.split(' '), stdout=subprocess.PIPE, shell=True, **query).stdout
+        stdout, stderr = Popen(command, shell=True, stdout=PIPE, stderr=PIPE).communicate()
+        output = stdout + b" " + stderr
         logging.info(f"<- Output: {output}")
 
         self.wfile.write(output)
